@@ -1,0 +1,14 @@
+{
+  "name": "scraping-website",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "rimraf output && node ."
+  },
+  "dependencies": {
+    "fs-extra": "^10.1.0",
+    "puppeteer": "^15.2.0",
+    "rimraf": "^3.0.2"
+  }
+}
