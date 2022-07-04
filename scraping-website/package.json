@@ -4,11 +4,10 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "rimraf output && node ."
+    "start": "node ."
   },
   "dependencies": {
-    "fs-extra": "^10.1.0",
-    "puppeteer": "^15.2.0",
-    "rimraf": "^3.0.2"
+    "fs-extra": "10.1.0",
+    "puppeteer": "15.2.0"
   }
 }

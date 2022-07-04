@@ -2,27 +2,45 @@ const puppeteer = require("puppeteer");
 const { URL } = require("url");
 const fse = require("fs-extra");
 const path = require("path");
+const { argv } = require("process");
+const configs = require("./configs.json");
 
-async function start(urlToFetch) {
-  const browser = await puppeteer.launch({ headless: false });
+async function start(urlToFetch, outputParameter) {
+  const browser = await puppeteer.launch({
+    headless: false,
+    defaultViewport: null,
+  });
   const page = await browser.newPage();
 
   page.on("response", async (response) => {
     const url = new URL(response.url());
-    let filePath = path.resolve(`./output/${url.host}/${url.pathname}`);
+    const isIndexFile = path.extname(url.pathname).trim() === "";
+    const output = `./output/${outputParameter}`;
+    const host = url.host;
 
-    if (path.extname(url.pathname).trim() === "") {
-      filePath = `${filePath}/index.html`;
-    }
+    if (!configs.excludeSites.includes(host)) {
+      let filePath = path.resolve(`${output}/${host}/${url.pathname}`);
 
-    try {
-      await fse.outputFile(filePath, await response.buffer());
-    } catch (error) {
-      console.error(error);
+      if (isIndexFile) {
+        filePath = `${filePath}/index.html`;
+      }
+
+      try {
+        await fse.outputFile(filePath, await response.buffer());
+      } catch (error) {
+        console.error(error);
+      }
     }
   });
 
   await page.goto(urlToFetch, { waitUntil: "networkidle2" });
 }
 
-start("https://google.com");
+const now = new Date();
+const outputParameter =
+  argv[2] ??
+  `${now
+    .toISOString()
+    .slice(0, 10)}-${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}`;
+
+start("https://google.com", outputParameter);

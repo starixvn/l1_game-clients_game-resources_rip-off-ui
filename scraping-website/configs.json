@@ -1,0 +1,15 @@
+{
+  "excludeSites": [
+    "adservice.google.com",
+    "apis.google.com",
+    "id.google.com",
+    "maps.googleapis.com",
+    "play.google.com",
+    "static.cloudflareinsights.com",
+    "www.google-analytics.com",
+    "www.google-analytics.com",
+    "www.google.com",
+    "www.googletagmanager.com",
+    "www.gstatic.com"
+  ]
+}
