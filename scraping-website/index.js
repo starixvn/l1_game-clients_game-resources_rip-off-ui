@@ -11,12 +11,14 @@ async function start(urlToFetch, outputParameter) {
     defaultViewport: null,
   });
   const page = await browser.newPage();
+  let accessedUrl = "about:blank";
 
   page.on("response", async (response) => {
     const url = new URL(response.url());
     const isIndexFile = path.extname(url.pathname).trim() === "";
     const output = `./output/${outputParameter}`;
     const host = url.host;
+    const urlFilePath = `${output}/accessed.url`;
 
     if (!configs.excludeSites.includes(host)) {
       let filePath = path.resolve(`${output}/${host}/${url.pathname}`);
@@ -26,6 +28,18 @@ async function start(urlToFetch, outputParameter) {
       }
 
       try {
+        const url = await page.url();
+
+        if (url.toString() !== accessedUrl) {
+          accessedUrl = url;
+
+          if (fse.existsSync(urlFilePath)) {
+            await fse.appendFile(urlFilePath, "\n" + url);
+          } else {
+            await fse.outputFile(urlFilePath, url);
+          }
+        }
+
         await fse.outputFile(filePath, await response.buffer());
       } catch (error) {
         console.error(error);
