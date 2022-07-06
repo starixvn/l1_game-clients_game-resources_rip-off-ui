@@ -5,7 +5,61 @@ const path = require("path");
 const { argv } = require("process");
 const configs = require("./configs.json");
 
-async function start(urlToFetch, outputParameter) {
+const now = new Date();
+const defaultFolder = `${now
+  .toISOString()
+  .slice(0, 10)}-${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}`;
+const output = `./output/${argv[2] ?? defaultFolder}`;
+
+/**
+ * @param {puppeteer.Page} page
+ * @param {string} previousUrl
+ * @returns
+ */
+async function saveAccessedUrl(page, previousUrl) {
+  const filePath = `${output}/accessed.url`;
+  const url = page.url();
+
+  if (url.toString() !== previousUrl) {
+    if (fse.existsSync(filePath)) {
+      await fse.appendFile(filePath, "\n" + url);
+    } else {
+      await fse.outputFile(filePath, url);
+    }
+
+    return url;
+  }
+
+  return previousUrl;
+}
+
+/**
+ * @param {puppeteer.Page} page
+ * @param {URL} url
+ */
+function getFilePath(page, url) {
+  const pageUrl = new URL(page.url());
+  const isIndexFile =
+    path.extname(url.pathname).trim() === "" && url.protocol.startsWith("http");
+  const specialProtocol = !url.protocol.startsWith("http");
+  const host = (url.host || pageUrl.host).replace(":", "");
+  const pathname = (url.pathname || pageUrl.pathname).replace(":", "");
+  const defaultFilePath = `${output}/${host}/${pathname}`;
+
+  if (isIndexFile) {
+    return `${defaultFilePath}/index.html`;
+  }
+
+  if (specialProtocol) {
+    const extension = url.protocol.split(":")[0];
+
+    return `${defaultFilePath}.${extension}`;
+  }
+
+  return defaultFilePath;
+}
+
+async function start(urlToFetch) {
   const browser = await puppeteer.launch({
     headless: false,
     defaultViewport: null,
@@ -15,30 +69,12 @@ async function start(urlToFetch, outputParameter) {
 
   page.on("response", async (response) => {
     const url = new URL(response.url());
-    const isIndexFile = path.extname(url.pathname).trim() === "";
-    const output = `./output/${outputParameter}`;
-    const host = url.host;
-    const urlFilePath = `${output}/accessed.url`;
 
-    if (!configs.excludeSites.includes(host)) {
-      let filePath = path.resolve(`${output}/${host}/${url.pathname}`);
-
-      if (isIndexFile) {
-        filePath = `${filePath}/index.html`;
-      }
+    if (!configs.excludeSites.includes(url.host)) {
+      const filePath = getFilePath(page, url);
 
       try {
-        const url = await page.url();
-
-        if (url.toString() !== accessedUrl) {
-          accessedUrl = url;
-
-          if (fse.existsSync(urlFilePath)) {
-            await fse.appendFile(urlFilePath, "\n" + url);
-          } else {
-            await fse.outputFile(urlFilePath, url);
-          }
-        }
+        accessedUrl = await saveAccessedUrl(page, accessedUrl);
 
         await fse.outputFile(filePath, await response.buffer());
       } catch (error) {
@@ -50,11 +86,4 @@ async function start(urlToFetch, outputParameter) {
   await page.goto(urlToFetch, { waitUntil: "networkidle2" });
 }
 
-const now = new Date();
-const outputParameter =
-  argv[2] ??
-  `${now
-    .toISOString()
-    .slice(0, 10)}-${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}`;
-
-start("https://google.com", outputParameter);
+start("https://google.com");
