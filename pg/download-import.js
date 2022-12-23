@@ -1,13 +1,21 @@
 const download = require("./downloader");
 
 async function downloadImport(bundle) {
-  const downloaded = await Promise.all(
+  const hasImportUri = (config) => !!config.importUri;
+
+  await Promise.all(
     Object.values(bundle)
-      .filter((config) => !!config.importUri)
-      .map((config) => download(config.importUri))
+      .filter(hasImportUri)
+      .map(async (config) => {
+        const uri = await download(config.importUri);
+
+        config.importPath = uri;
+
+        return config;
+      })
   );
 
-  return { downloaded, bundle };
+  return bundle;
 }
 
 module.exports = downloadImport;

@@ -4,12 +4,17 @@ const buildBundleUris = require("./build-bundle-uris");
 const download = require("./downloader");
 const { parseConfigs } = require("./cocos");
 const downloadImport = require("./download-import");
-const { writeFileSync } = require("fs");
+const { writeFileSync, mkdirSync } = require("fs");
+const buildNativeUris = require("./build-native-uris");
+const downloadNative = require("./download-native");
+const extractNativeFiles = require("./extract-native-file");
+const unpackBundle = require("./unpack-bundle");
+const { join, dirname } = require("path");
 
 const gameUri = process.env.GAME_URI || "https://m.pgsoft-games.com";
 const resourceUri =
   process.env.RESOURCE_URI || "https://static.pgsoft-games.com";
-const gameId = process.env.GAME_ID || 29;
+const gameId = process.env.GAME_ID || "39";
 
 const assetsUri = `${resourceUri}/${gameId}/assets`;
 
@@ -20,6 +25,21 @@ getHtml(gameUri, gameId)
   .then((paths) => paths.filter((path) => path.endsWith(".json")))
   .then((paths) => paths.map((path) => parseConfigs(path, assetsUri)))
   .then((bundles) => Promise.all(bundles.map(downloadImport)))
+  .then((bundles) => bundles.map(unpackBundle))
+  .then((bundles) => bundles.map(buildNativeUris))
+  .then((bundles) => Promise.all(bundles.map(downloadNative)))
   .then((bundles) =>
-    writeFileSync("data.json", JSON.stringify(bundles, null, 2))
-  );
+    bundles.map((bundle) => extractNativeFiles(bundle, gameId))
+  )
+  .then((bundles) => {
+    const destination = join("output", "data", `${gameId}.json`);
+
+    mkdirSync(dirname(destination), { recursive: true });
+    writeFileSync(destination, JSON.stringify(bundles, null, 2));
+  })
+  .catch((error) => console.error(error));
+
+setTimeout(() => {
+  console.log(`Process for game ${gameId} timeout`);
+  process.kill();
+}, 60000);

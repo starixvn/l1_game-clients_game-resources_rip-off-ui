@@ -9,8 +9,7 @@ function standardizeOptions(options) {
   const paths = options.paths;
   const types = options.types;
   const bundles = options.deps;
-
-  options.paths = null;
+  const realEntries = (options.paths = Object.create(null));
 
   for (let i = 0, l = uuids.length; i < l; i++) {
     uuids[i] = decodeUuid(uuids[i]);
@@ -20,6 +19,7 @@ function standardizeOptions(options) {
     const entry = paths[id];
     const type = entry[1];
     entry[1] = types[type];
+    realEntries[uuids[id]] = entry;
   }
 
   const scenes = options.scenes;
@@ -103,7 +103,12 @@ function initPackage(packages, storage) {
 
   for (const packUuid in packages) {
     const uuids = packages[packUuid];
-    const pack = { uuid: packUuid, packedUuids: uuids, ext: ".json" };
+    const pack = {
+      uuid: packUuid,
+      packedUuids: uuids,
+      ext: ".json",
+      isPack: true,
+    };
 
     storage[packUuid] = pack;
   }
