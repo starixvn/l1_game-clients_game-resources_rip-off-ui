@@ -10,11 +10,12 @@ const downloadNative = require("./download-native");
 const extractNativeFiles = require("./extract-native-file");
 const unpackBundle = require("./unpack-bundle");
 const { join, dirname } = require("path");
+const downloadPackage = require("./download-package");
 
 const gameUri = process.env.GAME_URI || "https://m.pgsoft-games.com";
 const resourceUri =
   process.env.RESOURCE_URI || "https://static.pgsoft-games.com";
-const gameId = process.env.GAME_ID || "39";
+const gameId = process.env.GAME_ID || "135";
 
 const assetsUri = `${resourceUri}/${gameId}/assets`;
 
@@ -24,8 +25,9 @@ getHtml(gameUri, gameId)
   .then((paths) => Promise.all(paths.map(download)))
   .then((paths) => paths.filter((path) => path.endsWith(".json")))
   .then((paths) => paths.map((path) => parseConfigs(path, assetsUri)))
-  .then((bundles) => Promise.all(bundles.map(downloadImport)))
+  .then((bundles) => Promise.all(bundles.map(downloadPackage)))
   .then((bundles) => bundles.map(unpackBundle))
+  .then((bundles) => Promise.all(bundles.map(downloadImport)))
   .then((bundles) => bundles.map(buildNativeUris))
   .then((bundles) => Promise.all(bundles.map(downloadNative)))
   .then((bundles) =>
@@ -38,8 +40,3 @@ getHtml(gameUri, gameId)
     writeFileSync(destination, JSON.stringify(bundles, null, 2));
   })
   .catch((error) => console.error(error));
-
-setTimeout(() => {
-  console.log(`Process for game ${gameId} timeout`);
-  process.kill();
-}, 60000);

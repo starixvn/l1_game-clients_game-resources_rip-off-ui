@@ -14,7 +14,7 @@ const gameIds = [
 const GAME_URI = "https://m.pgsoft-games.com";
 const RESOURCE_URI = "https://static.pgsoft-games.com";
 
-const batchSize = 4;
+const batchSize = 1;
 const batches = gameIds.reduce((all, one, i) => {
   const ch = Math.floor(i / batchSize);
   all[ch] = [].concat(all[ch] || [], one);

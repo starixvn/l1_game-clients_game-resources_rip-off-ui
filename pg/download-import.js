@@ -1,7 +1,7 @@
 const download = require("./downloader");
 
 async function downloadImport(bundle) {
-  const hasImportUri = (config) => !!config.importUri;
+  const hasImportUri = (config) => !!config.importUri && !config.isPack;
 
   await Promise.all(
     Object.values(bundle)

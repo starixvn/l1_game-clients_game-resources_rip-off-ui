@@ -85,11 +85,10 @@ function parseInstances(data) {
 
       instances[insIndex] = deserializeCustomCCObject(ctor, eachData);
     } else {
+      console.log("TODO: with other data");
       type = ~type;
 
       //op(data, instances, insIndex, eachData);
-
-      //TODO: with other data
     }
   }
 
