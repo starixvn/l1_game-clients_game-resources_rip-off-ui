@@ -207,7 +207,7 @@ function parseConfig(filePath, assetsUri) {
   initVersion(configs.versions, storage);
   initRedirect(configs.redirect, storage);
   initUris(assetsUri, configs, storage);
-  cleanStorage(storage);
+  //cleanStorage(storage);
 
   return storage;
 }

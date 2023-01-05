@@ -1,0 +1,12 @@
+export const VERSION = 0;
+export const SHARED_UUID = 1;
+export const SHARED_STRING = 2;
+export const SHARED_CLASS = 3;
+export const SHARED_MASK = 4;
+export const SESSION = 5;
+export const INSTANCES = 5;
+export const INSTANCE_TYPES = 6;
+export const REFS = 7;
+export const DEPEND_OBJECT = 8;
+export const DEPEND_KEYS = 9;
+export const DEPEND_UUID_INDICES = 10;

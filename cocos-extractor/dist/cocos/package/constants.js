@@ -1,0 +1,15 @@
+"use strict";
+exports.__esModule = true;
+exports.DEPEND_UUID_INDICES = exports.DEPEND_KEYS = exports.DEPEND_OBJECT = exports.REFS = exports.INSTANCE_TYPES = exports.INSTANCES = exports.SESSION = exports.SHARED_MASK = exports.SHARED_CLASS = exports.SHARED_STRING = exports.SHARED_UUID = exports.VERSION = void 0;
+exports.VERSION = 0;
+exports.SHARED_UUID = 1;
+exports.SHARED_STRING = 2;
+exports.SHARED_CLASS = 3;
+exports.SHARED_MASK = 4;
+exports.SESSION = 5;
+exports.INSTANCES = 5;
+exports.INSTANCE_TYPES = 6;
+exports.REFS = 7;
+exports.DEPEND_OBJECT = 8;
+exports.DEPEND_KEYS = 9;
+exports.DEPEND_UUID_INDICES = 10;
