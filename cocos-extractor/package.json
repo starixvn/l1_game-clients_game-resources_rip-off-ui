@@ -2,11 +2,11 @@
   "name": "cocos-extractor",
   "version": "1.0.0",
   "license": "MIT",
-  "main": "dist/app.js",
-  "types": "dist/app.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon ./src/app.ts"
+    "dev": "nodemon ./src/startup.ts"
   },
   "dependencies": {
     "plist": "3.0.6"

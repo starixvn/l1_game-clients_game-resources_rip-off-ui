@@ -27,6 +27,7 @@ export interface Skeleton extends BaseInstance {
   _atlasText: string;
   textureNames: string[];
   _skeletonJson: unknown;
+  textures: { uuid: string }[];
 }
 
 export interface SpriteFrame extends BaseInstance {
@@ -47,5 +48,5 @@ export interface SpriteAtlas extends BaseInstance {
   ctor: "cc.SpriteAtlas";
   _name: string;
   parseType: number;
-  _spriteFrames: Record<string, SpriteFrame> | { uuid: string };
+  _spriteFrames: Record<string, { uuid: string }>;
 }

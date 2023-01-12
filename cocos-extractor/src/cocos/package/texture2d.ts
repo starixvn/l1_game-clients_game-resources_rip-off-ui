@@ -1,4 +1,4 @@
-const extensions = [
+export const texture2dExtensions = [
   ".png",
   ".jpg",
   ".jpeg",
@@ -26,7 +26,7 @@ export function unpackTexture2D(json: { type: string; data: string }) {
           base: frame[0],
           mipmaps: frame[1],
           frame,
-          _native: extensions[frame[0]],
+          _native: texture2dExtensions[frame[0]],
         },
       ],
       [0],

@@ -1,3 +1,4 @@
+export declare const texture2dExtensions: string[];
 export declare function unpackTexture2D(json: {
     type: string;
     data: string;

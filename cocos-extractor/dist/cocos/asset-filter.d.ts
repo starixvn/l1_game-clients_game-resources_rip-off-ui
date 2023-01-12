@@ -3,4 +3,8 @@ export declare const isImportAsset: (asset: IAsset) => boolean;
 export declare const isPackage: (asset: IAsset) => boolean;
 export declare const isNativeImport: (asset: IAsset) => boolean;
 export declare const isNative: (asset: IAsset) => boolean;
+export declare const isSamePath: (path: string) => (asset: IAsset) => boolean;
+export declare const isSameCtor: (ctor: string) => (asset: IAsset) => boolean;
+export declare const and: (...conditions: ((asset: IAsset) => boolean)[]) => (asset: IAsset) => boolean;
 export declare function getAssets(bundle: IBundle, filter: (asset: IAsset) => boolean): IAsset[];
+export declare function findAsset(bundle: IBundle, filter: (asset: IAsset) => boolean): IAsset;

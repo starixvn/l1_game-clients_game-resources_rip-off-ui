@@ -17,9 +17,9 @@ function executePipeline(bundle, instance, output) {
     return function (_a) {
         var uuid = _a[0], base = _a[1];
         var pipelines = [
+            (0, audio_clip_1.extractAudioClip)(bundle, instance),
             (0, sprite_frame_1.extractSpriteFrame)(bundle, instance),
             (0, sprite_atlas_1.extractSpriteAtlas)(bundle, instance),
-            (0, audio_clip_1.extractAudioClip)(bundle, instance),
             (0, skeleton_1.extractSkeleton)(bundle, instance),
             (0, texture2d_1.extractTexture2D)(bundle, instance),
             skipInstances,
@@ -27,13 +27,14 @@ function executePipeline(bundle, instance, output) {
         var asset = bundle.storage[uuid];
         return pipelines
             .map(function (execute) { return execute(asset, base, output); })
-            .flat();
+            .flat()
+            .map(function (uuid) {
+            instance[uuid].exported = true;
+            return uuid;
+        });
     };
 }
 function extract(bundle, instance, output) {
-    var uuids = Object.entries(instance)
-        .map(executePipeline(bundle, instance, output))
-        .flat();
-    uuids.forEach(function (uuid) { return (instance[uuid].exported = true); });
+    Object.entries(instance).forEach(executePipeline(bundle, instance, output));
 }
 exports.extract = extract;

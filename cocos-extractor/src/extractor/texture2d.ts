@@ -1,62 +1,69 @@
-import { copyFileSync, mkdirSync, writeFileSync } from "fs";
-import { dirname, join } from "path";
+import { join } from "path";
 import { IAsset, IBundle } from "../cocos/bundle";
 import { Instance, SpriteFrame, Texture2D } from "../instances";
 import { buildPlist } from "./build-plist";
-import { getPath } from "./utils";
+import { copyFile, getPath, writeFile } from "./utils";
 
-function copyTexture(
+function extractNormalTexture(
   texture: Texture2D,
   asset: IAsset,
-  output: string,
-  unknownPrefix = "unknown"
+  output: string
 ) {
-  const path = getPath(asset, unknownPrefix);
-  const destination = join(output, `${path}${texture._native}`);
+  const destination = join(output, `${getPath(asset)}${texture._native}`);
 
-  mkdirSync(dirname(destination), { recursive: true });
-  copyFileSync(asset.nativePath, destination);
+  copyFile(asset.nativePath, destination);
+
+  return [asset.uuid];
+}
+
+function getFrameEntries(instance: Instance, uuid: string) {
+  return Object.entries(instance).filter(
+    ([_, value]) =>
+      value.ctor === "cc.SpriteFrame" &&
+      (value as SpriteFrame)?._textureSetter?.uuid === uuid
+  ) as [string, SpriteFrame][];
+}
+
+function extractCustomPlist(
+  asset: IAsset,
+  texture: Texture2D,
+  frameEntries: [string, SpriteFrame][],
+  output: string
+) {
+  const uuids = frameEntries.map(([uuid]) => uuid);
+  const folder = "unknown/atlas";
+  const path = getPath(asset, folder);
+  const textureName = `${asset.uuid}${texture._native}`;
+  const frames = frameEntries.map(([_, frame]) => frame);
+  const plist = buildPlist(textureName, frames);
+  const plistDestination = join(output, `${path}.plist`);
+  const textureDestination = join(output, `${path}${texture._native}`);
+
+  copyFile(asset.nativePath, textureDestination);
+  writeFile(plistDestination, plist);
+
+  return [asset.uuid, ...uuids];
 }
 
 export function extractTexture2D(bundle: IBundle, instance: Instance) {
   return function (asset: IAsset, texture: Texture2D, output: string) {
-    if (texture.ctor !== "cc.Texture2D") {
+    if (texture.ctor !== "cc.Texture2D" || texture.exported) {
       return [];
     }
 
-    if (!!asset.path) {
-      copyTexture(texture, asset, output);
+    const isNormalTexture = !!asset.path;
 
-      return [asset.uuid];
+    if (isNormalTexture) {
+      return extractNormalTexture(texture, asset, output);
     } else {
-      const entries = Object.entries(instance).filter(
-        ([_, value]) =>
-          value.ctor === "cc.SpriteFrame" &&
-          (value as SpriteFrame)._textureSetter.uuid === asset.uuid
-      );
+      const entries = getFrameEntries(instance, asset.uuid);
 
       // Custom Plist
       if (entries.length !== 0) {
-        const uuids = entries.map(([uuid]) => uuid);
-
-        const folder = "unknown/atlas";
-        const path = getPath(asset, folder);
-
-        const textureName = `${asset.uuid}${texture._native}`;
-        const frames = entries.map(([_, frame]) => frame);
-        const plist = buildPlist(textureName, frames as SpriteFrame[]);
-        const plistDestination = join(output, `${path}.plist`);
-
-        copyTexture(texture, asset, output, folder);
-        writeFileSync(plistDestination, plist);
-
-        return [asset.uuid, ...uuids];
-      } else {
-        // Unknown textures
-        copyTexture(texture, asset, output, "unknown/images");
-
-        return [asset.uuid];
+        return extractCustomPlist(asset, texture, entries, output);
       }
     }
+
+    return [];
   };
 }

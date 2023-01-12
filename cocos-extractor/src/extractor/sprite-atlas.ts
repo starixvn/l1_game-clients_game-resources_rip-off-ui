@@ -1,19 +1,31 @@
-import { mkdirSync, writeFileSync } from "fs";
-import { dirname, join } from "path";
+import { basename, join } from "path";
+import { and, findAsset, isSameCtor, isSamePath } from "../cocos/asset-filter";
 import { IAsset, IBundle } from "../cocos/bundle";
 import { Instance, SpriteAtlas, SpriteFrame } from "../instances";
 import { buildPlist } from "./build-plist";
-import { getPath } from "./utils";
+import { getPath, writeFile } from "./utils";
 
-function reference(spriteAtlas: SpriteAtlas, instance: Instance) {
-  return Object.keys(spriteAtlas._spriteFrames).map((key) => {
-    const { uuid } = spriteAtlas._spriteFrames[key];
+function getFrames(spriteAtlas: SpriteAtlas, instance: Instance) {
+  return Object.values(spriteAtlas._spriteFrames).map(
+    ({ uuid }) => instance[uuid] as SpriteFrame
+  );
+}
 
-    const frame = instance[uuid] as SpriteFrame;
-    spriteAtlas._spriteFrames[key] = frame;
+function getFrameIds(spriteAtlas: SpriteAtlas) {
+  return Object.values(spriteAtlas._spriteFrames).map(({ uuid }) => uuid);
+}
 
-    return uuid;
-  });
+function getTextureName(bundle: IBundle, instance: Instance, path: string) {
+  const textureAsset = findAsset(
+    bundle,
+    and(isSamePath(path), isSameCtor("cc.Texture2D"))
+  );
+  const textureInstance = textureAsset ? instance[textureAsset.uuid] : null;
+  const texturePath = `${textureAsset?.path ?? path}${
+    textureInstance?._native ?? ".png"
+  }`;
+
+  return basename(texturePath);
 }
 
 export function extractSpriteAtlas(bundle: IBundle, instance: Instance) {
@@ -23,22 +35,13 @@ export function extractSpriteAtlas(bundle: IBundle, instance: Instance) {
     }
 
     const path = getPath(asset);
+    const textureName = getTextureName(bundle, instance, path);
     const destination = join(output, `${path}.plist`);
-    const uuids = reference(spriteAtlas, instance);
-    const textureAsset = Object.values(bundle.storage).find(
-      (asset) => asset.path === path
-    );
-    const textureInstance = textureAsset ? instance[textureAsset.uuid] : null;
-
-    const frames = Object.values(spriteAtlas._spriteFrames);
-    const textureName =
-      spriteAtlas._name.split(".")[0] + (textureInstance?._native ?? ".png");
-
+    const frames = getFrames(spriteAtlas, instance);
     const plist = buildPlist(textureName, frames);
 
-    mkdirSync(dirname(destination), { recursive: true });
-    writeFileSync(destination, plist);
+    writeFile(destination, plist);
 
-    return [asset.uuid, ...uuids];
+    return [asset.uuid, ...getFrameIds(spriteAtlas)];
   };
 }

@@ -7,7 +7,7 @@ export function extractSpriteFrame(bundle: IBundle, instance: Instance) {
       return [];
     }
 
-    frame.texture = instance[frame._textureSetter.uuid] as Texture2D;
+    frame.texture = instance[frame._textureSetter?.uuid] as Texture2D;
 
     return [];
   };

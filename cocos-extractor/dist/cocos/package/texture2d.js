@@ -1,7 +1,7 @@
 "use strict";
 exports.__esModule = true;
-exports.unpackTexture2D = void 0;
-var extensions = [
+exports.unpackTexture2D = exports.texture2dExtensions = void 0;
+exports.texture2dExtensions = [
     ".png",
     ".jpg",
     ".jpeg",
@@ -27,7 +27,7 @@ function unpackTexture2D(json) {
                 base: frame[0],
                 mipmaps: frame[1],
                 frame: frame,
-                _native: extensions[frame[0]]
+                _native: exports.texture2dExtensions[frame[0]]
             },
         ],
         [0],

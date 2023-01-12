@@ -37,59 +37,33 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.start = void 0;
-var fs_1 = require("fs");
 var path_1 = require("path");
-var parse_1 = require("./cocos/bundle/parse");
-var deserializer_1 = require("./cocos/deserializer");
-var import_1 = require("./cocos/import");
-var package_1 = require("./cocos/package");
-var download_bundle_1 = require("./downloader/download-bundle");
-var download_import_1 = require("./downloader/download-import");
-var download_native_1 = require("./downloader/download-native");
+var download_1 = require("./download");
 var extractor_1 = require("./extractor");
+var utils_1 = require("./extractor/utils");
 var statistic_1 = require("./statistic");
 function buildOutputDirectory(input) {
     var uri = new URL(input.uri);
     var result = {
-        raw: (0, path_1.join)(input.output, "raw"),
         extracted: (0, path_1.join)(input.output, "extracted", uri.pathname),
         data: (0, path_1.join)(input.output, "data", uri.pathname)
     };
-    Object.values(result).forEach(function (directory) {
-        return (0, fs_1.mkdirSync)(directory, { recursive: true });
-    });
     return result;
 }
 function start(input) {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, raw, data, extracted, bundleUri, bundle, instances;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
+        var _a, data, extracted, _b, bundle, instance;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
                 case 0:
-                    _a = buildOutputDirectory(input), raw = _a.raw, data = _a.data, extracted = _a.extracted;
-                    return [4 /*yield*/, (0, download_bundle_1.downloadBundle)(input, raw)];
+                    _a = buildOutputDirectory(input), data = _a.data, extracted = _a.extracted;
+                    return [4 /*yield*/, (0, download_1.download)(input)];
                 case 1:
-                    bundleUri = _b.sent();
-                    bundle = (0, parse_1.parse)(bundleUri);
-                    instances = {};
-                    return [4 /*yield*/, (0, download_import_1.downloadImport)(input.uri, bundle, raw)];
-                case 2:
-                    _b.sent();
-                    (0, package_1.unpack)(bundle);
-                    (0, import_1.importJsonFiles)(bundle);
-                    Object.entries(bundle.imported).forEach(function (_a) {
-                        var uuid = _a[0], imported = _a[1];
-                        instances[uuid] = (0, deserializer_1.deserialize)(imported, {
-                            asset: bundle.storage[uuid]
-                        });
-                    });
-                    return [4 /*yield*/, (0, download_native_1.downloadNative)(input.uri, bundle, instances, raw)];
-                case 3:
-                    _b.sent();
-                    (0, extractor_1.extract)(bundle, instances, extracted);
-                    (0, statistic_1.printStatistic)(bundle, instances);
-                    (0, fs_1.writeFileSync)((0, path_1.join)(data, "instance.json"), JSON.stringify(instances, null, 2));
-                    (0, fs_1.writeFileSync)((0, path_1.join)(data, "bundle.json"), JSON.stringify(bundle, null, 2));
+                    _b = _c.sent(), bundle = _b.bundle, instance = _b.instance;
+                    (0, extractor_1.extract)(bundle, instance, extracted);
+                    (0, statistic_1.printStatistic)(bundle, instance);
+                    (0, utils_1.writeFile)((0, path_1.join)(data, "instance.json"), JSON.stringify(instance, null, 2));
+                    (0, utils_1.writeFile)((0, path_1.join)(data, "bundle.json"), JSON.stringify(bundle, null, 2));
                     return [2 /*return*/];
             }
         });

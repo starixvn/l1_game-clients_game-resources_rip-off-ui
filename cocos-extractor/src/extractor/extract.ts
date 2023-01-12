@@ -19,9 +19,9 @@ function skipInstances(asset: IAsset, texture: BaseInstance) {
 function executePipeline(bundle: IBundle, instance: Instance, output: string) {
   return function ([uuid, base]: [string, BaseInstance]) {
     const pipelines = [
+      extractAudioClip(bundle, instance),
       extractSpriteFrame(bundle, instance),
       extractSpriteAtlas(bundle, instance),
-      extractAudioClip(bundle, instance),
       extractSkeleton(bundle, instance),
       extractTexture2D(bundle, instance),
       skipInstances,
@@ -30,14 +30,15 @@ function executePipeline(bundle: IBundle, instance: Instance, output: string) {
 
     return pipelines
       .map((execute) => execute(asset, base as any, output))
-      .flat();
+      .flat()
+      .map((uuid) => {
+        instance[uuid].exported = true;
+
+        return uuid;
+      });
   };
 }
 
 export function extract(bundle: IBundle, instance: Instance, output: string) {
-  const uuids = Object.entries(instance)
-    .map(executePipeline(bundle, instance, output))
-    .flat();
-
-  uuids.forEach((uuid) => (instance[uuid].exported = true));
+  Object.entries(instance).forEach(executePipeline(bundle, instance, output));
 }
