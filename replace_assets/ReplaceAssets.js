@@ -1,19 +1,21 @@
 const glob = require("glob");
 const fse = require("fs-extra");
 const plist = require("plist");
+const path = require("path");
 
 replaceAssets();
 
 function replaceAssets() {
   const currentAssetsPath = process.argv[2];
-  const newAssetsPath = process.argv[3];
+  const oldAssetsPath = process.argv[3];
+  const newAssetsPath = process.argv[4];
 
   const newUUIDMap = getUUIDMap(newAssetsPath, false); // [nam]: uuid
-  const currentUUIDMap = getUUIDMap(currentAssetsPath); // [uuid]: name
+  const oldUUIDMap = getUUIDMap(oldAssetsPath); // [uuid]: name
 
-  replaceUUIDInSceneAndPrefab(currentAssetsPath, currentUUIDMap, newUUIDMap);
-  replaceUUIDInAnimation(currentAssetsPath, currentUUIDMap, newUUIDMap);
-  replaceUUIDInParticle(currentAssetsPath, currentUUIDMap, newUUIDMap);
+  replaceUUIDInSceneAndPrefab(currentAssetsPath, oldUUIDMap, newUUIDMap);
+  replaceUUIDInAnimation(currentAssetsPath, oldUUIDMap, newUUIDMap);
+  replaceUUIDInParticle(currentAssetsPath, oldUUIDMap, newUUIDMap);
 }
 
 function replaceUUIDInParticle(currentPath, currentMap, newMap) {
@@ -27,7 +29,7 @@ function replaceUUIDInParticle(currentPath, currentMap, newMap) {
     if (newUUID) {
       plistData["spriteFrameUuid"] = newUUID;
     } else {
-      console.log(`Missing resource for ${currentMap[uuid]}`);
+      console.log(`Missing resource for ${uuid}`);
     }
     fse.writeFileSync(path, plist.build(plistData));
   });
@@ -54,7 +56,7 @@ function replaceUUIDInAnimation(currentPath, currentMap, newMap) {
               if (newUUID) {
                 spriteFrame["value"]["__uuid__"] = newUUID;
               } else {
-                console.log(`Missing resource for ${currentMap[uuid]}`);
+                console.log(`Missing resource for ${uuid}`);
               }
             }
           });
@@ -62,7 +64,10 @@ function replaceUUIDInAnimation(currentPath, currentMap, newMap) {
       }
     });
 
-    fse.writeJSONSync(path, fileData);
+    fse.writeJSONSync(path, fileData, {
+      spaces: 2,
+      EOL: "\r\n",
+    });
   });
 }
 
@@ -81,20 +86,37 @@ function replaceUUIDInSceneAndPrefab(currentPath, currentMap, newMap) {
         if (newUUID) {
           data["_spriteFrame"]["__uuid__"] = newUUID;
         } else {
-          console.log(`Missing resource for ${currentMap[uuid]}`);
+          console.log(`Missing resource for ${uuid}`);
+        }
+      }
+
+      if (data["__type__"] === "sp.Skeleton") {
+        const temp = data["_N$skeletonData"];
+        if (!temp) {
+          return;
+        }
+        const uuid = temp["__uuid__"];
+        const newUUID = newMap[currentMap[uuid]];
+        if (newUUID) {
+          data["_N$skeletonData"]["__uuid__"] = newUUID;
+        } else {
+          console.log(`Missing resource for ${uuid}`);
         }
       }
     });
-    fse.writeJSONSync(path, fileData);
+    fse.writeJSONSync(path, fileData, {
+      spaces: 2,
+      EOL: "\r\n",
+    });
   });
 }
 
-function getUUIDMap(path, keyByUUID = true) {
+function getUUIDMap(dirPath, keyByUUID = true) {
   const uuidMap = {};
-  const filePaths = glob.sync(`${path}/**/*.meta`);
-  filePaths.forEach((path) => {
-    const data = fse.readJSONSync(path);
-    const { subMetas } = data;
+  const filePaths = glob.sync(`${dirPath}/**/*.meta`);
+  filePaths.forEach((filePath) => {
+    const data = fse.readJSONSync(filePath);
+    const { subMetas, importer, uuid } = data;
     Object.keys(subMetas).forEach((key) => {
       const subData = subMetas[key];
       const { uuid, importer } = subData;
@@ -106,6 +128,15 @@ function getUUIDMap(path, keyByUUID = true) {
         }
       }
     });
+
+    const filename = path.basename(filePath);
+    if (importer === "spine") {
+      if (keyByUUID) {
+        uuidMap[uuid] = filename;
+      } else {
+        uuidMap[filename] = uuid;
+      }
+    }
   });
   return uuidMap;
 }
