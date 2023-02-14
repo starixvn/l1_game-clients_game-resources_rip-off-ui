@@ -3,19 +3,22 @@ const fse = require("fs-extra");
 const plist = require("plist");
 const path = require("path");
 
-replaceAssets();
+const input = {
+  folder: "D:/L1_client/assets/games/happy-fish/preload",
+  oldResourcesPath: "D:/L1_client/assets/games/happy-fish/resources/",
+  newResourcesPath: "D:/L1_client/assets/games/happy-fish/resources2/",
+};
+replaceAssets(input);
 
-function replaceAssets() {
-  const currentAssetsPath = process.argv[2];
-  const oldAssetsPath = process.argv[3];
-  const newAssetsPath = process.argv[4];
+function replaceAssets(input) {
+  const { folder, oldResourcesPath, newResourcesPath } = input;
 
-  const newUUIDMap = getUUIDMap(newAssetsPath, false); // [nam]: uuid
-  const oldUUIDMap = getUUIDMap(oldAssetsPath); // [uuid]: name
+  const newUUIDMap = getUUIDMap(newResourcesPath, false); // [nam]: uuid
+  const oldUUIDMap = getUUIDMap(oldResourcesPath); // [uuid]: name
 
-  replaceUUIDInSceneAndPrefab(currentAssetsPath, oldUUIDMap, newUUIDMap);
-  replaceUUIDInAnimation(currentAssetsPath, oldUUIDMap, newUUIDMap);
-  replaceUUIDInParticle(currentAssetsPath, oldUUIDMap, newUUIDMap);
+  replaceUUIDInSceneAndPrefab(folder, oldUUIDMap, newUUIDMap);
+  replaceUUIDInAnimation(folder, oldUUIDMap, newUUIDMap);
+  replaceUUIDInParticle(folder, oldUUIDMap, newUUIDMap);
 }
 
 function replaceUUIDInParticle(currentPath, currentMap, newMap) {
@@ -73,36 +76,31 @@ function replaceUUIDInAnimation(currentPath, currentMap, newMap) {
 
 function replaceUUIDInSceneAndPrefab(currentPath, currentMap, newMap) {
   const filePaths = glob.sync(`${currentPath}/**/*@(.fire|.prefab)`);
+
+  const supportTypes = {
+    "cc.Sprite": "_spriteFrame",
+    "sp.Skeleton": "_N$skeletonData",
+    "cc.ParticleSystem": "_file",
+    "cc.Label": "_N$file",
+  };
   filePaths.forEach((path) => {
     const fileData = fse.readJSONSync(path);
     fileData.forEach((data) => {
-      if (data["__type__"] === "cc.Sprite") {
-        const temp = data["_spriteFrame"];
-        if (!temp) {
-          return;
+      Object.keys(supportTypes).forEach((key) => {
+        if (data["__type__"] === key) {
+          const temp = data[supportTypes[key]];
+          if (!temp) {
+            return;
+          }
+          const uuid = temp["__uuid__"];
+          const newUUID = newMap[currentMap[uuid]];
+          if (newUUID) {
+            temp["__uuid__"] = newUUID;
+          } else {
+            console.log(`Missing resource for ${uuid}`);
+          }
         }
-        const uuid = temp["__uuid__"];
-        const newUUID = newMap[currentMap[uuid]];
-        if (newUUID) {
-          data["_spriteFrame"]["__uuid__"] = newUUID;
-        } else {
-          console.log(`Missing resource for ${uuid}`);
-        }
-      }
-
-      if (data["__type__"] === "sp.Skeleton") {
-        const temp = data["_N$skeletonData"];
-        if (!temp) {
-          return;
-        }
-        const uuid = temp["__uuid__"];
-        const newUUID = newMap[currentMap[uuid]];
-        if (newUUID) {
-          data["_N$skeletonData"]["__uuid__"] = newUUID;
-        } else {
-          console.log(`Missing resource for ${uuid}`);
-        }
-      }
+      });
     });
     fse.writeJSONSync(path, fileData, {
       spaces: 2,
@@ -130,7 +128,11 @@ function getUUIDMap(dirPath, keyByUUID = true) {
     });
 
     const filename = path.basename(filePath);
-    if (importer === "spine") {
+    if (
+      importer === "spine" ||
+      importer === "particle" ||
+      importer === "bitmap-font"
+    ) {
       if (keyByUUID) {
         uuidMap[uuid] = filename;
       } else {
