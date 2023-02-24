@@ -11,15 +11,24 @@ const WRITE_JSON_OPTIONS = {
 const input = {
   gameName: "Happy Fish",
   gameId: 63,
-  folder: "D:/L1_client/assets/games/happy-fish",
-  oldResourcesPath: "D:/L1_client/assets/games/happy-fish/resources/",
-  newResourcesPath: "D:/L1_client/assets/games/happy-fish/resources/",
+  colorList: {
+    previewOddsSymbolNumberColor: "#ffffff",
+    previewOddsWinValueColor: "#FFDC00",
+    previewOddsBorderColor: "#66e0ff",
+    bonusCountItemTextColor: "#ffcc00",
+    noticeTextColor: "#ffffff",
+    noticeHighlightTextColor: "#ffcc00",
+    bottomAreaTextColor: "#6ee5ff",
+    bottomAreaButtonBorderColor: "#6ee5ff",
+  },
+  folder: "D:/projects/game-client/assets/games/happy-fish",
+  oldResourcesPath: "D:/projects/game-client/assets/games/happy-fish/resources/",
+  newResourcesPath: "D:/projects/game-client/assets/games/happy-fish/resources/",
 };
 replaceAssets(input);
 
 function replaceAssets(input) {
-  const { gameName, gameId, folder, oldResourcesPath, newResourcesPath } =
-    input;
+  const { gameName, gameId, folder, oldResourcesPath, newResourcesPath } = input;
   const newUUIDMap = getUUIDMap(newResourcesPath, false); // [nam]: uuid
   const oldUUIDMap = getUUIDMap(oldResourcesPath); // [uuid]: name
 
@@ -32,9 +41,7 @@ function replaceAssets(input) {
 
   replaceBundleId(folder, gameId);
   renameSceneFile(preloadFolder, gameName);
-  folders.forEach((f) =>
-    replaceInfoSceneAndPrefab(f, gameId, oldUUIDMap, newUUIDMap)
-  );
+  folders.forEach((f) => replaceInfoSceneAndPrefab(f, input, oldUUIDMap, newUUIDMap));
   replaceUUIDInAnimation(preloadFolder, oldUUIDMap, newUUIDMap);
   replaceUUIDInParticle(preloadFolder, oldUUIDMap, newUUIDMap);
 }
@@ -107,7 +114,8 @@ function replaceUUIDInAnimation(folder, currentMap, newMap) {
   });
 }
 
-function replaceInfoSceneAndPrefab(folder, gameId, currentMap, newMap) {
+function replaceInfoSceneAndPrefab(folder, input, currentMap, newMap) {
+  const { gameId, colorList } = input;
   const filePaths = glob.sync(`${folder}/**/*@(.fire|.prefab)`);
 
   const supportTypes = {
@@ -116,10 +124,18 @@ function replaceInfoSceneAndPrefab(folder, gameId, currentMap, newMap) {
     "cc.ParticleSystem": "_file",
     "cc.Label": "_N$file",
   };
+
   filePaths.forEach((path) => {
     const fileData = fse.readJSONSync(path);
+    const isScene = path.endsWith(".fire");
+
     fileData.forEach((data) => {
+      if (isScene) {
+        replaceColorProperties(data, colorList);
+      }
+
       replaceGameId(data, gameId);
+
       Object.keys(supportTypes).forEach((key) => {
         if (data["__type__"] === key) {
           const temp = data[supportTypes[key]];
@@ -145,6 +161,14 @@ function replaceGameId(data, gameId) {
   });
 }
 
+function replaceColorProperties(data, colorList) {
+  Object.keys(colorList).forEach((key) => {
+    if (data[key]) {
+      data[key] = colorList[key];
+    }
+  });
+}
+
 function getUUIDMap(dirPath, keyByUUID = true) {
   const uuidMap = {};
   const filePaths = glob.sync(`${dirPath}/**/*.meta`);
@@ -164,11 +188,7 @@ function getUUIDMap(dirPath, keyByUUID = true) {
     });
 
     const filename = path.basename(filePath);
-    if (
-      importer === "spine" ||
-      importer === "particle" ||
-      importer === "bitmap-font"
-    ) {
+    if (importer === "spine" || importer === "particle" || importer === "bitmap-font") {
       if (keyByUUID) {
         uuidMap[uuid] = filename;
       } else {
