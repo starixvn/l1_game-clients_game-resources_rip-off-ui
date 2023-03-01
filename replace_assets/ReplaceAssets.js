@@ -2,7 +2,6 @@ const glob = require("glob");
 const fse = require("fs-extra");
 const plist = require("plist");
 const path = require("path");
-const fs = require("fs");
 
 const WRITE_JSON_OPTIONS = {
   spaces: 2,
@@ -20,14 +19,7 @@ const input = {
     zh_cn: "快乐鱼",
     zh_tw: "快樂魚",
   },
-  lobbyNamesLanguages: {
-    en: "Happy Fish",
-    id: "Ikan Bahagia",
-    th: "แฮปปี้ฟิช",
-    vi: "Happy Fish",
-    zh_cn: "快乐鱼",
-    zh_tw: "快樂魚",
-  },
+  lobbyNamesLanguages: {},
   gameId: 63,
   colorList: {
     previewOddsSymbolNumberColor: "#ffffff",
@@ -37,6 +29,7 @@ const input = {
     noticeTextColor: "#ffffff",
     noticeHighlightTextColor: "#ffcc00",
     bottomAreaTextColor: "#6ee5ff",
+    bottomAreaNumberColor: "#ffffff",
     bottomAreaButtonBorderColor: "#6ee5ff",
   },
   folder: "D:/projects/game-client/assets/games/happy-fish",
@@ -52,23 +45,30 @@ function createLanguageFiles(input) {
   const { gameId, i18nTextFolderPath, gameNameLanguages, lobbyNamesLanguages, langList } =
     input;
 
+  // delete all files
+  fse.emptyDirSync(i18nTextFolderPath);
+
+  // create language files
   langList.forEach((lang) => {
-    const content = `
-import { reloadLanguageData } from "../../../../common/i18n/CustomLanguageData";
+    let lobbyName = "";
+    if (lobbyNamesLanguages[lang]) {
+      lobbyName = `,
+    lobbyNames: {
+        ${gameId}: "${lobbyNamesLanguages[lang]}"
+    }`;
+    }
+
+    const content = `import { reloadLanguageData } from "../../../../common/i18n/CustomLanguageData";
 
 export const phrases = {
     gameNames: {
-      ${gameId}: "${gameNameLanguages[lang]}"
-    },
-    lobbyNames: {
-      ${gameId}:  "${lobbyNamesLanguages[lang]}"
-    }
+        ${gameId}: "${gameNameLanguages[lang]}"
+    }${lobbyName}
 };
 
-reloadLanguageData("${lang}", phrases);
-`;
+reloadLanguageData("${lang}", phrases);`;
 
-    fs.appendFile(
+    fse.appendFile(
       `${i18nTextFolderPath}game-${gameId}-${lang}.ts`,
       content,
       function (err) {
