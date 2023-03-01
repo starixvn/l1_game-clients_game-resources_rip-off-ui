@@ -8,38 +8,15 @@ const WRITE_JSON_OPTIONS = {
   EOL: "\r\n",
 };
 
-const input = {
-  gameName: "Happy Fish",
-  langList: ["en", "id", "th", "vi", "zh_cn", "zh_tw"],
-  gameNameLanguages: {
-    en: "Happy Fish",
-    id: "Ikan Bahagia",
-    th: "แฮปปี้ฟิช",
-    vi: "Happy Fish",
-    zh_cn: "快乐鱼",
-    zh_tw: "快樂魚",
-  },
-  lobbyNamesLanguages: {},
-  gameId: 63,
-  colorList: {
-    previewOddsSymbolNumberColor: "#ffffff",
-    previewOddsWinValueColor: "#FFDC00",
-    previewOddsBorderColor: "#66e0ff",
-    bonusCountItemTextColor: "#ffcc00",
-    noticeTextColor: "#ffffff",
-    noticeHighlightTextColor: "#ffcc00",
-    bottomAreaTextColor: "#6ee5ff",
-    bottomAreaNumberColor: "#ffffff",
-    bottomAreaButtonBorderColor: "#6ee5ff",
-  },
-  folder: "D:/projects/game-client/assets/games/happy-fish",
-  oldResourcesPath: "D:/projects/game-client/assets/games/happy-fish/resources/",
-  newResourcesPath: "D:/projects/game-client/assets/games/happy-fish/resources/",
-  i18nTextFolderPath: "D:/projects/game-client/assets/games/happy-fish/i18n/texts/",
-};
+function loadGameConfig() {
+  const fileName = `NewClassicGameConfig.json`;
+  const fileData = fse.readJSONSync(fileName);
+  return fileData["config"];
+}
 
-replaceAssets(input);
-createLanguageFiles(input);
+const newGameConfig = loadGameConfig();
+replaceAssets(newGameConfig);
+createLanguageFiles(newGameConfig);
 
 function createLanguageFiles(input) {
   const { gameId, i18nTextFolderPath, gameNameLanguages, lobbyNamesLanguages, langList } =
