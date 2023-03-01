@@ -1,8 +1,8 @@
 {
   "config": {
     "gameId": 63,
-    "gameName": "Happy Fish",
     "langList": ["en", "id", "th", "vi", "zh_cn", "zh_tw"],
+    "gameName": "Happy Fish",
     "gameNameLanguages": {
       "en": "Happy Fish",
       "id": "Ikan Bahagia",
