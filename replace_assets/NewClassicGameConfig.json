@@ -1,31 +1,35 @@
 {
-  "config": {
-    "gameId": 63,
-    "langList": ["en", "id", "th", "vi", "zh_cn", "zh_tw"],
-    "gameName": "Happy Fish",
-    "gameNameLanguages": {
-      "en": "Happy Fish",
-      "id": "Ikan Bahagia",
-      "th": "แฮปปี้ฟิช",
-      "vi": "Happy Fish",
-      "zh_cn": "快乐鱼",
-      "zh_tw": "快樂魚"
-    },
-    "lobbyNamesLanguages": {},
-    "colorList": {
-      "previewOddsSymbolNumberColor": "#ffffff",
-      "previewOddsWinValueColor": "#FFDC00",
-      "previewOddsBorderColor": "#66e0ff",
-      "bonusCountItemTextColor": "#ffcc00",
-      "noticeTextColor": "#ffffff",
-      "noticeHighlightTextColor": "#ffcc00",
-      "bottomAreaTextColor": "#6ee5ff",
-      "bottomAreaNumberColor": "#ffffff",
-      "bottomAreaButtonBorderColor": "#6ee5ff"
-    },
-    "folder": "D:/projects/game-client/assets/games/happy-fish",
-    "oldResourcesPath": "D:/projects/game-client/assets/games/happy-fish/resources/",
-    "newResourcesPath": "D:/projects/game-client/assets/games/happy-fish/resources/",
-    "i18nTextFolderPath": "D:/projects/game-client/assets/games/happy-fish/i18n/texts/"
+  "gameId": 64,
+  "langList": ["en", "id", "th", "vi", "zh_cn", "zh_tw"],
+  "gameName": "Magical Forest",
+  "gameNameLanguages": {
+    "en": "Magical Forest",
+    "id": "Ikan Bahagia",
+    "th": "แฮปปี้ฟิช",
+    "vi": "Happy Fish",
+    "zh_cn": "快乐鱼",
+    "zh_tw": "快樂魚"
+  },
+  "lobbyNamesLanguages": {},
+  "colorList": {
+    "previewOddsSymbolNumberColor": "#ffffff",
+    "previewOddsWinValueColor": "#FFDC00",
+    "previewOddsBorderColor": "#66e0ff",
+    "bonusCountItemTextColor": "#ffcc00",
+    "noticeTextColor": "#ffffff",
+    "noticeHighlightTextColor": "#ffcc00",
+    "bottomAreaTextColor": "#6ee5ff",
+    "bottomAreaNumberColor": "#ffffff",
+    "bottomAreaButtonBorderColor": "#6ee5ff"
+  },
+  "templateFolder": "D:/L1_client/assets/games/happy-fish",
+  "folder": "D:/L1_client/assets/games/jungle",
+  "newResources": "",
+  "command": {
+    "clone-game": true,
+    "create-languages-files": true,
+    "copy-new-resource": true,
+    "generate-new-uuid": true,
+    "replace-assets": true
   }
 }

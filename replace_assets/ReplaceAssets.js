@@ -3,25 +3,107 @@ const fse = require("fs-extra");
 const plist = require("plist");
 const path = require("path");
 
+const uuid4 = require("uuid4");
+
 const WRITE_JSON_OPTIONS = {
   spaces: 2,
   EOL: "\r\n",
 };
 
+const config = loadGameConfig();
+const { templateFolder, folder, newResources, command } = config;
+
+//step1: clone game from template
+if (command["clone-game"]) {
+  cloneGameFromTemplate(templateFolder, folder);
+}
+
+// //step2: create new language files
+if (command["create-languages-files"]) {
+  createLanguageFiles(config);
+}
+
+//step3: override by new resources
+const resourceDest = `${folder}/resources/`;
+if (command["copy-new-resource"]) {
+  copyNewResources(newResources, resourceDest);
+}
+
+//step4: auto generate new uuid for new resources
+if (command["generate-new-uuid"]) {
+  generateNewUUID(resourceDest);
+}
+
+// //step5: replace uuid
+if (command["replace-assets"]) {
+  replaceAssets(config);
+}
+
+function generateNewUUID(dirPath) {
+  const filePaths = glob.sync(`${dirPath}/**/*.meta`);
+  const uuidMap = {};
+  filePaths.forEach((filePath) => {
+    const data = fse.readJSONSync(filePath);
+    uuidMap[data.uuid] = uuid4();
+
+    const { subMetas } = data;
+    Object.keys(subMetas).forEach((key) => {
+      const subData = subMetas[key];
+      uuidMap[subData.uuid] = uuid4();
+    });
+
+    fse.writeJSONSync(filePath, data, WRITE_JSON_OPTIONS);
+  });
+
+  //replace
+  filePaths.forEach((filePath) => {
+    const data = fse.readJSONSync(filePath);
+    data.uuid = uuidMap[data.uuid];
+    if (data.textureUuid) {
+      data.textureUuid = uuidMap[data.textureUuid];
+    }
+    if (data.rawTextureUuid) {
+      data.rawTextureUuid = uuidMap[data.rawTextureUuid];
+    }
+
+    if (data.textures) {
+      const temp = [];
+      data.textures.forEach((key) => temp.push(uuidMap[key]));
+      data.textures = temp;
+    }
+
+    const { subMetas } = data;
+    Object.keys(subMetas).forEach((key) => {
+      const subData = subMetas[key];
+      subData.uuid = uuidMap[subData.uuid];
+
+      if (subData.rawTextureUuid) {
+        subData.rawTextureUuid = uuidMap[subData.rawTextureUuid];
+      }
+    });
+
+    fse.writeJSONSync(filePath, data, WRITE_JSON_OPTIONS);
+  });
+}
+
+function copyNewResources(newResources, resourceDest) {
+  fse.copySync(newResources, resourceDest);
+}
+function cloneGameFromTemplate(templateFolder, folder) {
+  fse.copySync(templateFolder, folder);
+
+  fse.copyFileSync(`${templateFolder}.meta`, `${folder}.meta`);
+}
 function loadGameConfig() {
   const fileName = `NewClassicGameConfig.json`;
   const fileData = fse.readJSONSync(fileName);
-  return fileData["config"];
+  return fileData;
 }
-
-const newGameConfig = loadGameConfig();
-replaceAssets(newGameConfig);
-createLanguageFiles(newGameConfig);
-
 function createLanguageFiles(input) {
-  const { gameId, i18nTextFolderPath, gameNameLanguages, lobbyNamesLanguages, langList } =
+  const { gameId, folder, gameNameLanguages, lobbyNamesLanguages, langList } =
     input;
 
+  const i18nTextFolderPath = `${folder}/i18n/texts/`;
   // delete all files
   fse.emptyDirSync(i18nTextFolderPath);
 
@@ -56,7 +138,11 @@ reloadLanguageData("${lang}", phrases);`;
 }
 
 function replaceAssets(input) {
-  const { gameName, gameId, folder, oldResourcesPath, newResourcesPath } = input;
+  const { gameName, gameId, folder } = input;
+
+  const oldResourcesPath = `${templateFolder}/resources/`;
+  const newResourcesPath = `${folder}/resources/`;
+
   const newUUIDMap = getUUIDMap(newResourcesPath, false); // [nam]: uuid
   const oldUUIDMap = getUUIDMap(oldResourcesPath); // [uuid]: name
 
@@ -69,7 +155,9 @@ function replaceAssets(input) {
 
   replaceBundleId(folder, gameId);
   renameSceneFile(preloadFolder, gameName);
-  folders.forEach((f) => replaceInfoSceneAndPrefab(f, input, oldUUIDMap, newUUIDMap));
+  folders.forEach((f) =>
+    replaceInfoSceneAndPrefab(f, input, oldUUIDMap, newUUIDMap)
+  );
   replaceUUIDInAnimation(preloadFolder, oldUUIDMap, newUUIDMap);
   replaceUUIDInParticle(preloadFolder, oldUUIDMap, newUUIDMap);
 }
@@ -216,7 +304,11 @@ function getUUIDMap(dirPath, keyByUUID = true) {
     });
 
     const filename = path.basename(filePath);
-    if (importer === "spine" || importer === "particle" || importer === "bitmap-font") {
+    if (
+      importer === "spine" ||
+      importer === "particle" ||
+      importer === "bitmap-font"
+    ) {
       if (keyByUUID) {
         uuidMap[uuid] = filename;
       } else {
