@@ -24,7 +24,7 @@ if (command["create-languages-files"]) {
 }
 
 //step3: override by new resources
-const resourceDest = `${folder}/resources/`;
+const resourceDest = `${folder}/`;
 if (command["copy-new-resource"]) {
   copyNewResources(newResources, resourceDest);
 }
@@ -89,6 +89,7 @@ function generateNewUUID(dirPath) {
 function copyNewResources(newResources, resourceDest) {
   fse.copySync(newResources, resourceDest);
 }
+
 function cloneGameFromTemplate(templateFolder, folder) {
   fse.copySync(templateFolder, folder);
 
@@ -100,8 +101,7 @@ function loadGameConfig() {
   return fileData;
 }
 function createLanguageFiles(input) {
-  const { gameId, folder, gameNameLanguages, lobbyNamesLanguages, langList } =
-    input;
+  const { gameId, folder, gameNameLanguages, lobbyNamesLanguages, langList } = input;
 
   const i18nTextFolderPath = `${folder}/i18n/texts/`;
   // delete all files
@@ -155,9 +155,7 @@ function replaceAssets(input) {
 
   replaceBundleId(folder, gameId);
   renameSceneFile(preloadFolder, gameName);
-  folders.forEach((f) =>
-    replaceInfoSceneAndPrefab(f, input, oldUUIDMap, newUUIDMap)
-  );
+  folders.forEach((f) => replaceInfoSceneAndPrefab(f, input, oldUUIDMap, newUUIDMap));
   replaceUUIDInAnimation(preloadFolder, oldUUIDMap, newUUIDMap);
   replaceUUIDInParticle(preloadFolder, oldUUIDMap, newUUIDMap);
 }
@@ -175,6 +173,8 @@ function renameSceneFile(folder, gameName) {
   filePaths.forEach((filePath) => {
     const newName = path.dirname(filePath) + `/${sceneName}.fire`;
     fse.renameSync(filePath, newName);
+
+    fse.renameSync(`${filePath}.meta`, `${newName}.meta`);
   });
 }
 
@@ -304,11 +304,7 @@ function getUUIDMap(dirPath, keyByUUID = true) {
     });
 
     const filename = path.basename(filePath);
-    if (
-      importer === "spine" ||
-      importer === "particle" ||
-      importer === "bitmap-font"
-    ) {
+    if (importer === "spine" || importer === "particle" || importer === "bitmap-font") {
       if (keyByUUID) {
         uuidMap[uuid] = filename;
       } else {
