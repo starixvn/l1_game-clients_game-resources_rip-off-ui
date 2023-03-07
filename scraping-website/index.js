@@ -53,6 +53,9 @@ function getFilePath(page, url) {
   if (specialProtocol) {
     const extension = url.protocol.split(":")[0];
 
+    if (extension === "blob") {
+      return `${defaultFilePath}.png`;
+    }
     return `${defaultFilePath}.${extension}`;
   }
 
@@ -63,6 +66,7 @@ async function start(urlToFetch) {
   const browser = await puppeteer.launch({
     headless: false,
     defaultViewport: null,
+    pipe: true,
   });
   const page = await browser.newPage();
   let accessedUrl = "about:blank";
@@ -86,4 +90,6 @@ async function start(urlToFetch) {
   await page.goto(urlToFetch, { waitUntil: "networkidle2" });
 }
 
-start("https://google.com");
+start(
+  "https://demogamesfree.pragmaticplay.net/gs2c/openGame.do?gameSymbol=vs25sea&websiteUrl=https%3A%2F%2Fdemogamesfree.pragmaticplay.net&jurisdiction=99&lobby_url=https%3A%2F%2Fwww.pragmaticplay.com%2Fen%2F"
+);
