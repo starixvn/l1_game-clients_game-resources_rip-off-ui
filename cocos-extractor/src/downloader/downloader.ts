@@ -51,10 +51,11 @@ async function downloadWithRetry(
 
 export function download(
   path: string,
-  output: string = defaultOutputPath
+  output: string = defaultOutputPath,
+  keepPath: boolean = true
 ): Promise<string> {
   const uri = new URL(path);
-  const destination = join(output, uri.pathname);
+  const destination = keepPath ? join(output, uri.pathname) : output;
 
   if (existsSync(destination)) {
     return Promise.resolve(destination);

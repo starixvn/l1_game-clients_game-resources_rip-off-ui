@@ -91,10 +91,11 @@ function downloadWithRetry(path, destination, retry, tried) {
         });
     });
 }
-function download(path, output) {
+function download(path, output, keepPath) {
     if (output === void 0) { output = exports.defaultOutputPath; }
+    if (keepPath === void 0) { keepPath = true; }
     var uri = new URL(path);
-    var destination = (0, path_1.join)(output, uri.pathname);
+    var destination = keepPath ? (0, path_1.join)(output, uri.pathname) : output;
     if ((0, fs_1.existsSync)(destination)) {
         return Promise.resolve(destination);
     }
