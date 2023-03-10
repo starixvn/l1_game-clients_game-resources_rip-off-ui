@@ -174,7 +174,6 @@ function generateSpineAtlas(
   spriteList: any,
   textureOutput: string
 ) {
-  console.log("eeeeeeeeeeeeeeeee");
   const fileName = `${textureName}.atlas`;
   const filePath = join(textureOutput, fileName);
   fse.createFileSync(filePath);
