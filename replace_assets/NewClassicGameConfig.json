@@ -22,12 +22,14 @@
     "bottomAreaNumberColor": "#ffffff",
     "bottomAreaButtonBorderColor": "#6ee5ff"
   },
+  "music": ["song1"],
   "templateFolder": "D:/projects/game-client/assets/games/happy-fish",
   "folder": "D:/projects/game-client/assets/games/magic-forest",
   "newResources": "D:/replace-assets",
   "command": {
     "clone-game": true,
     "create-languages-files": true,
+    "create-color-music-json-files": true,
     "copy-new-resource": true,
     "generate-new-uuid": true,
     "replace-assets": true

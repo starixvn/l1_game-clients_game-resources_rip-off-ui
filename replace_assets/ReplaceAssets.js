@@ -18,23 +18,28 @@ if (command["clone-game"]) {
   cloneGameFromTemplate(templateFolder, folder);
 }
 
-// //step2: create new language files
+//step2: create new language files
 if (command["create-languages-files"]) {
   createLanguageFiles(config);
 }
 
-//step3: override by new resources
+//step3: create new json files
+if (command["create-color-music-json-files"]) {
+  createColorMusicJsonFiles(config);
+}
+
+//step4: override by new resources
 const resourceDest = `${folder}/`;
 if (command["copy-new-resource"]) {
   copyNewResources(newResources, resourceDest);
 }
 
-//step4: auto generate new uuid for new resources
+//step5: auto generate new uuid for new resources
 if (command["generate-new-uuid"]) {
   generateNewUUID(resourceDest);
 }
 
-// //step5: replace uuid
+//step6: replace uuid
 if (command["replace-assets"]) {
   replaceAssets(config);
 }
@@ -95,11 +100,13 @@ function cloneGameFromTemplate(templateFolder, folder) {
 
   fse.copyFileSync(`${templateFolder}.meta`, `${folder}.meta`);
 }
+
 function loadGameConfig() {
   const fileName = `NewClassicGameConfig.json`;
   const fileData = fse.readJSONSync(fileName);
   return fileData;
 }
+
 function createLanguageFiles(input) {
   const { gameId, folder, gameNameLanguages, lobbyNamesLanguages, langList } = input;
 
@@ -135,6 +142,36 @@ reloadLanguageData("${lang}", phrases);`;
       }
     );
   });
+}
+
+function createColorMusicJsonFiles(input) {
+  const { colorList, music } = input;
+  const content = {
+    bottomAreaTextColor: colorList.bottomAreaTextColor,
+    bottomAreaNumberColor: colorList.bottomAreaNumberColor,
+    bottomAreaButtonBorderColor: colorList.bottomAreaButtonBorderColor,
+    previewOddsBorderColor: colorList.previewOddsBorderColor,
+    previewOddsSymbolNumberColor: colorList.previewOddsSymbolNumberColor,
+    previewOddsWinValueColor: colorList.previewOddsWinValueColor,
+    noticeTextColor: colorList.noticeTextColor,
+    noticeHighlightTextColor: colorList.noticeHighlightTextColor,
+    bonusCountItemTextColor: colorList.bonusCountItemTextColor,
+  };
+
+  createJsonFile("color", content);
+  createJsonFile("music", { SC1: music });
+}
+
+async function createJsonFile(fileName, content) {
+  try {
+    const path = `${config.folder}/resources/json/${fileName}.json`;
+    await fse.remove(path);
+    await fse.writeJson(path, content, {
+      spaces: 2,
+    });
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 function replaceAssets(input) {
@@ -231,7 +268,7 @@ function replaceUUIDInAnimation(folder, currentMap, newMap) {
 }
 
 function replaceInfoSceneAndPrefab(folder, input, currentMap, newMap) {
-  const { gameId, colorList } = input;
+  const { gameId } = input;
   const filePaths = glob.sync(`${folder}/**/*@(.fire|.prefab)`);
 
   const supportTypes = {
@@ -243,13 +280,8 @@ function replaceInfoSceneAndPrefab(folder, input, currentMap, newMap) {
 
   filePaths.forEach((path) => {
     const fileData = fse.readJSONSync(path);
-    const isScene = path.endsWith(".fire");
 
     fileData.forEach((data) => {
-      if (isScene) {
-        replaceColorProperties(data, colorList);
-      }
-
       replaceGameId(data, gameId);
 
       Object.keys(supportTypes).forEach((key) => {
@@ -260,6 +292,14 @@ function replaceInfoSceneAndPrefab(folder, input, currentMap, newMap) {
           }
 
           replaceUUID(temp, "__uuid__", currentMap, newMap);
+        }
+
+        if (data["colorInfo"]) {
+          replaceUUID(data["colorInfo"], "__uuid__", currentMap, newMap);
+        }
+
+        if (data["musicInfo"]) {
+          replaceUUID(data["musicInfo"], "__uuid__", currentMap, newMap);
         }
       });
     });
@@ -277,23 +317,17 @@ function replaceGameId(data, gameId) {
   });
 }
 
-function replaceColorProperties(data, colorList) {
-  Object.keys(colorList).forEach((key) => {
-    if (data[key]) {
-      data[key] = colorList[key];
-    }
-  });
-}
-
 function getUUIDMap(dirPath, keyByUUID = true) {
   const uuidMap = {};
   const filePaths = glob.sync(`${dirPath}/**/*.meta`);
   filePaths.forEach((filePath) => {
     const data = fse.readJSONSync(filePath);
     const { subMetas, importer, uuid } = data;
+
     Object.keys(subMetas).forEach((key) => {
       const subData = subMetas[key];
       const { uuid, importer } = subData;
+
       if (importer === "sprite-frame") {
         if (keyByUUID) {
           uuidMap[uuid] = key;
@@ -304,7 +338,12 @@ function getUUIDMap(dirPath, keyByUUID = true) {
     });
 
     const filename = path.basename(filePath);
-    if (importer === "spine" || importer === "particle" || importer === "bitmap-font") {
+    if (
+      importer === "json" ||
+      importer === "spine" ||
+      importer === "particle" ||
+      importer === "bitmap-font"
+    ) {
       if (keyByUUID) {
         uuidMap[uuid] = filename;
       } else {
