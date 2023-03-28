@@ -1,26 +1,26 @@
 {
   "gameId": 64,
   "langList": ["en", "id", "th", "vi", "zh_cn", "zh_tw"],
-  "gameName": "Magical Forest",
+  "gameName": "Magic Forest",
   "gameNameLanguages": {
-    "en": "Magical Forest",
-    "id": "Ikan Bahagia",
-    "th": "แฮปปี้ฟิช",
-    "vi": "Happy Fish",
-    "zh_cn": "快乐鱼",
-    "zh_tw": "快樂魚"
+    "en": "Magic Forest",
+    "id": "Magic Forest",
+    "th": "Magic Forest",
+    "vi": "Khu Rừng Huyền Bí",
+    "zh_cn": "Magic Forest",
+    "zh_tw": "Magic Forest"
   },
   "lobbyNamesLanguages": {},
   "colorList": {
     "previewOddsSymbolNumberColor": "#ffffff",
-    "previewOddsWinValueColor": "#FFDC00",
-    "previewOddsBorderColor": "#66e0ff",
+    "previewOddsWinValueColor": "#42ff89",
+    "previewOddsBorderColor": "#ea821b",
     "bonusCountItemTextColor": "#ffcc00",
-    "noticeTextColor": "#ffffff",
+    "noticeTextColor": "#eaeaea",
     "noticeHighlightTextColor": "#ffcc00",
-    "bottomAreaTextColor": "#6ee5ff",
-    "bottomAreaNumberColor": "#ffffff",
-    "bottomAreaButtonBorderColor": "#6ee5ff"
+    "bottomAreaTextColor": "#ffe63f",
+    "bottomAreaNumberColor": "#ffe63f",
+    "bottomAreaButtonBorderColor": "#ea821b"
   },
   "music": ["song1"],
   "templateFolder": "D:/projects/game-client/assets/games/happy-fish",
