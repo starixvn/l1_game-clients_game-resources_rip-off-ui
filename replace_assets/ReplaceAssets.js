@@ -150,6 +150,7 @@ function createColorMusicJsonFiles(input) {
     bottomAreaTextColor: colorList.bottomAreaTextColor,
     bottomAreaNumberColor: colorList.bottomAreaNumberColor,
     bottomAreaButtonBorderColor: colorList.bottomAreaButtonBorderColor,
+    bottomAreaWinAmountColor: colorList.bottomAreaWinAmountColor,
     previewOddsBorderColor: colorList.previewOddsBorderColor,
     previewOddsSymbolNumberColor: colorList.previewOddsSymbolNumberColor,
     previewOddsWinValueColor: colorList.previewOddsWinValueColor,

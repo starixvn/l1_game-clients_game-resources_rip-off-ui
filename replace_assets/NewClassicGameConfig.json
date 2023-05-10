@@ -20,7 +20,8 @@
     "noticeHighlightTextColor": "#ffcc00",
     "bottomAreaTextColor": "#ffe63f",
     "bottomAreaNumberColor": "#ffe63f",
-    "bottomAreaButtonBorderColor": "#ea821b"
+    "bottomAreaButtonBorderColor": "#ea821b",
+    "bottomAreaWinAmountColor": "#FFF10E"
   },
   "music": ["song1"],
   "templateFolder": "D:/projects/game-client/assets/games/happy-fish",
