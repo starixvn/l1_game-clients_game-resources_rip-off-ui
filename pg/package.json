@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon app.ts"
+    "devNodemon": "nodemon app.ts",
+    "dev": "npx ts-node app.ts"
   },
   "dependencies": {
-    "cocos-extractor": "file:../cocos-extractor"
+    "cocos-extractor": "file:../cocos-extractor",
+    "puppeteer": "^20.8.1"
   },
   "devDependencies": {
     "@types/node": "18.11.18",
