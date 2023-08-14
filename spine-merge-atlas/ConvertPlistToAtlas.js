@@ -61,9 +61,9 @@ function readFileAtlas() {
       } else if (imgObj && line.includes("size") && index > 7) {
         line = `  size: ${formatPropertiesImage(imgObj.spriteSize)}`;
       } else if (imgObj && line.includes("orig")) {
-        line = `  orig: ${formatPropertiesImage(imgObj.spriteSize)}`;
+        line = `  orig: ${formatPropertiesImage(imgObj.spriteSourceSize)}`;
       } else if (imgObj && line.includes("offset")) {
-        //line = `  offset: ${formatPropertiesImage(imgObj.spriteOffset)}`;
+        line = `  offset: ${formatPropertiesImage(imgObj.spriteOffset)}`;
       }
 
       outputData += `${line}\n`;
