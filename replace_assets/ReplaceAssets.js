@@ -274,9 +274,11 @@ function replaceInfoSceneAndPrefab(folder, input, currentMap, newMap) {
 
   const supportTypes = {
     "cc.Sprite": "_spriteFrame",
+    "cc.Sprite": "_atlas",
     "sp.Skeleton": "_N$skeletonData",
     "cc.ParticleSystem": "_file",
     "cc.Label": "_N$file",
+    e07eb7ZtCFH5IdBzWDXvE12: "_atlas",
   };
 
   filePaths.forEach((path) => {
