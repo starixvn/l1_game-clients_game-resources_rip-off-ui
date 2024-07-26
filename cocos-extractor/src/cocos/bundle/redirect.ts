@@ -1,7 +1,7 @@
 import { IBundle } from "./parse";
 
 export function removeRedirectAssets(bundle: IBundle) {
-  if (!bundle.configs.redirect) {
+  if (!bundle?.configs.redirect) {
     return;
   }
 

@@ -9,6 +9,8 @@
     "dev": "nodemon ./src/startup.ts"
   },
   "dependencies": {
+    "cocos-extractor": "file:../cocos-extractor",
+    "nodemon": "^2.0.22",
     "plist": "3.0.6"
   },
   "devDependencies": {

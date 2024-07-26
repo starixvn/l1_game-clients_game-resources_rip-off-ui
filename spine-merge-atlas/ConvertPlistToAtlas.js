@@ -1,11 +1,11 @@
 const fse = require("fs-extra");
 const plist = require("plist");
 
+// const inputFolder = "D:/working/Luminet/rip-off-ui/spine-merge-atlas";
+const inputFolder = "D:/0_tool_UI/rip-off-ui/spine-merge-atlas";
 const config = {
-  atlasFile:
-    "D:/working/Luminet/rip-off-ui/spine-merge-atlas/assets/atlas/symbol-10.atlas",
-  plistFile:
-    "D:/working/Luminet/rip-off-ui/spine-merge-atlas/assets/plist/optimize-multiplier.plist",
+  atlasFile: `${inputFolder}/assets/atlas/symbol-10.atlas`,
+  plistFile: `${inputFolder}/assets/plist/optimize-multiplier.plist`,
 };
 
 const { atlasFile, plistFile } = config;
@@ -13,7 +13,7 @@ let coordinatePlistArr;
 let metaDataImage;
 
 readFilePlist();
-readFileAtlas();
+updateFileAtlas();
 
 function readFilePlist() {
   const fileData = fse.readFileSync(plistFile, "utf8");
@@ -30,18 +30,17 @@ function formatTextRect(textRect) {
   )}`;
 }
 
-function formatPropertiesImage(propertiesValue) {
-  const textRectArr = propertiesValue.split(",");
-  return `${textRectArr[0].replace("{", "")}, ${textRectArr[1].replace(
-    "}",
-    ""
-  )}`;
+function formatPropertiesImage(propertiesValue, rotation = false) {
+  const trimString = propertiesValue.replace("{", "").replace("}", "");
+  const textRectArr = trimString.split(",");
+
+  return `${textRectArr[rotation ? 1 : 0]}, ${textRectArr[rotation ? 0 : 1]}`;
 }
 
-function readFileAtlas() {
+async function updateFileAtlas() {
   const data = fse.readFileSync(atlasFile, "utf-8");
-  const outputPath =
-    "D:/working/Luminet/rip-off-ui/spine-merge-atlas/output/symbol-10.atlas";
+  const outputPath = `${inputFolder}/output/symbol-10.atlas`;
+  // const outputPath = `D:/L1_client/assets/ztest/output/symbol-10.atlas`;
   let outputData = "";
   let imgObj = {};
   let curFrame = "";
@@ -63,12 +62,13 @@ function readFileAtlas() {
       } else if (imgObj && line.includes("orig")) {
         line = `  orig: ${formatPropertiesImage(imgObj.spriteSourceSize)}`;
       } else if (imgObj && line.includes("offset")) {
-        line = `  offset: ${formatPropertiesImage(imgObj.spriteOffset)}`;
+        // line = `  offset: ${formatPropertiesImage(imgObj.spriteOffset)}`;
       }
 
       outputData += `${line}\n`;
     }
   });
 
-  fse.writeFile(outputPath, outputData);
+  await fse.ensureFileSync(outputPath);
+  await fse.writeFileSync(outputPath, outputData);
 }

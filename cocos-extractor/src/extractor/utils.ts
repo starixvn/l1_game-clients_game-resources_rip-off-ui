@@ -3,15 +3,15 @@ import { dirname } from "path";
 import { IAsset } from "../cocos/bundle";
 
 export function getPath(asset: IAsset, unknownPrefix = "unknown") {
-  return asset?.path ?? `${unknownPrefix}/${asset.uuid}`;
+	return asset?.path ?? `${unknownPrefix}/${asset.uuid}`;
 }
 
 export function copyFile(from: string, to: string) {
-  mkdirSync(dirname(to), { recursive: true });
-  copyFileSync(from, to);
+	mkdirSync(dirname(to), { recursive: true });
+	copyFileSync(from, to);
 }
 
 export function writeFile(to: string, data: string) {
-  mkdirSync(dirname(to), { recursive: true });
-  writeFileSync(to, data);
+	mkdirSync(dirname(to), { recursive: true });
+	data && writeFileSync(to, data);
 }

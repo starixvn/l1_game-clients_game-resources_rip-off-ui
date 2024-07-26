@@ -2,6 +2,9 @@ import { getUuidFolder } from "../uuid";
 import { IBundle } from "./parse";
 
 export function buildImportUri(bundle: IBundle) {
+  if (!bundle?.storage) {
+    return;
+  }
   const uuids = Object.keys(bundle.storage);
   const storage = bundle.storage;
 
