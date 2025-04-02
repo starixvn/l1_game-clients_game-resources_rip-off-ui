@@ -102,8 +102,20 @@ function cloneGameFromTemplate(templateFolder, folder) {
 }
 
 function loadGameConfig() {
-  const fileName = `NewClassicGameConfig.json`;
+  // Add isCascading from command line args
+  const args = process.argv.slice(2);
+  const isCascading = args.includes("--isCascading=true");
+  console.log("isCascading", isCascading);
+
+  // Choose config file based on isCascading parameter
+  const fileName = isCascading
+    ? "NewCascadingGameConfig.json"
+    : "NewClassicGameConfig.json";
   const fileData = fse.readJSONSync(fileName);
+
+  // Add isCascading flag to config data
+  fileData.isCascading = isCascading;
+
   return fileData;
 }
 

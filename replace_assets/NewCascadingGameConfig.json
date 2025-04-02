@@ -1,0 +1,39 @@
+{
+  "gameId": 118,
+  "langList": ["en", "id", "th", "vi", "zh_cn", "zh_tw"],
+  "gameName": "God Of Fortune 2",
+  "gameNameLanguages": {
+    "en": "God Of Fortune 2",
+    "id": "God Of Fortune 2",
+    "th": "God Of Fortune 2",
+    "vi": "God Of Fortune 2",
+    "zh_cn": "God Of Fortune 2",
+    "zh_tw": "God Of Fortune 2"
+  },
+  "lobbyNamesLanguages": {},
+  "colorList": {
+    "bottomAreaTextColor": "#ffe63f",
+    "bottomAreaNumberColor": "#ffffff",
+    "bottomAreaButtonBorderColor": "#ea821b",
+    "bottomAreaButtonBackgroundColor": "#110C01",
+    "bottomAreaWinAmountColor": "#FFFC00",
+    "previewOddsSymbolNumberColor": "#ffffff",
+    "previewOddsWinValueColor": "#f7ff18",
+    "previewOddsBorderColor": "#e7a74c",
+    "noticeTextColor": "#ffffff",
+    "noticeHighlightTextColor": "#ffcc00",
+    "topMessageTextColor": "#F7FF18"
+  },
+  "music": ["song1"],
+  "templateFolder": "D:/projects/game-client-base-all/game-client-main/assets/games/god-of-fortune",
+  "folder": "D:/projects/game-client-base-all/game-client-main/assets/games/god-of-fortune-2",
+  "newResources": "D:/replace-assets",
+  "command": {
+    "clone-game": true,
+    "create-languages-files": true,
+    "create-color-music-json-files": true,
+    "copy-new-resource": true,
+    "generate-new-uuid": true,
+    "replace-assets": true
+  }
+}
