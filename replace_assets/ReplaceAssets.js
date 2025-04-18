@@ -120,7 +120,8 @@ function loadGameConfig() {
 }
 
 function createLanguageFiles(input) {
-  const { gameId, folder, gameNameLanguages, lobbyNamesLanguages, langList } = input;
+  const { gameId, folder, gameNameLanguages, lobbyNamesLanguages, langList } =
+    input;
 
   const i18nTextFolderPath = `${folder}/i18n/texts/`;
   // delete all files
@@ -205,7 +206,9 @@ function replaceAssets(input) {
 
   replaceBundleId(folder, gameId);
   renameSceneFile(preloadFolder, gameName);
-  folders.forEach((f) => replaceInfoSceneAndPrefab(f, input, oldUUIDMap, newUUIDMap));
+  folders.forEach((f) =>
+    replaceInfoSceneAndPrefab(f, input, oldUUIDMap, newUUIDMap)
+  );
   replaceUUIDInAnimation(preloadFolder, oldUUIDMap, newUUIDMap);
   replaceUUIDInParticle(preloadFolder, oldUUIDMap, newUUIDMap);
 }
@@ -285,12 +288,11 @@ function replaceInfoSceneAndPrefab(folder, input, currentMap, newMap) {
   const filePaths = glob.sync(`${folder}/**/*@(.fire|.prefab)`);
 
   const supportTypes = {
-    "cc.Sprite": "_spriteFrame",
-    "cc.Sprite": "_atlas",
-    "sp.Skeleton": "_N$skeletonData",
-    "cc.ParticleSystem": "_file",
-    "cc.Label": "_N$file",
-    e07eb7ZtCFH5IdBzWDXvE12: "_atlas",
+    "cc.Sprite": ["_spriteFrame", "_atlas"],
+    "sp.Skeleton": ["_N$skeletonData"],
+    "cc.ParticleSystem": ["_file"],
+    "cc.Label": ["_N$file"],
+    e07eb7ZtCFH5IdBzWDXvE12: ["_atlas"],
   };
 
   filePaths.forEach((path) => {
@@ -301,12 +303,15 @@ function replaceInfoSceneAndPrefab(folder, input, currentMap, newMap) {
 
       Object.keys(supportTypes).forEach((key) => {
         if (data["__type__"] === key) {
-          const temp = data[supportTypes[key]];
-          if (!temp) {
-            return;
-          }
+          const subKeys = supportTypes[key];
+          subKeys.forEach((subKey) => {
+            const temp = data[subKey];
+            if (!temp) {
+              return;
+            }
 
-          replaceUUID(temp, "__uuid__", currentMap, newMap);
+            replaceUUID(temp, "__uuid__", currentMap, newMap);
+          });
         }
 
         if (data["colorInfo"]) {
