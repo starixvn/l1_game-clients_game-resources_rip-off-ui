@@ -292,7 +292,7 @@ function replaceInfoSceneAndPrefab(folder, input, currentMap, newMap) {
     "sp.Skeleton": ["_N$skeletonData"],
     "cc.ParticleSystem": ["_file"],
     "cc.Label": ["_N$file"],
-    e07eb7ZtCFH5IdBzWDXvE12: ["_atlas"],
+		e07eb7ZtCFH5IdBzWDXvE12: ["atlas"],
   };
 
   filePaths.forEach((path) => {
@@ -309,8 +309,10 @@ function replaceInfoSceneAndPrefab(folder, input, currentMap, newMap) {
             if (!temp) {
               return;
             }
-
+						// console.log("before ", data[subKey]);
             replaceUUID(temp, "__uuid__", currentMap, newMap);
+						data[subKey] = temp;
+						// console.log("after ", data[subKey]);
           });
         }
 
@@ -342,7 +344,7 @@ function getUUIDMap(dirPath, keyByUUID = true) {
   const filePaths = glob.sync(`${dirPath}/**/*.meta`);
   filePaths.forEach((filePath) => {
     const data = fse.readJSONSync(filePath);
-    const { subMetas, importer, uuid } = data;
+		const { subMetas, importer, uuid, type } = data;
 
     Object.keys(subMetas).forEach((key) => {
       const subData = subMetas[key];
@@ -362,7 +364,8 @@ function getUUIDMap(dirPath, keyByUUID = true) {
       importer === "json" ||
       importer === "spine" ||
       importer === "particle" ||
-      importer === "bitmap-font"
+			importer === "bitmap-font" ||
+			type === "Texture Packer"
     ) {
       if (keyByUUID) {
         uuidMap[uuid] = filename;
