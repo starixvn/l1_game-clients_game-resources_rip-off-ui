@@ -105,7 +105,6 @@ function loadGameConfig() {
   // Add isCascading from command line args
   const args = process.argv.slice(2);
   const isCascading = args.includes("--isCascading=true");
-  console.log("isCascading", isCascading);
 
   // Choose config file based on isCascading parameter
   const fileName = isCascading
@@ -120,8 +119,7 @@ function loadGameConfig() {
 }
 
 function createLanguageFiles(input) {
-  const { gameId, folder, gameNameLanguages, lobbyNamesLanguages, langList } =
-    input;
+  const { gameId, folder, gameNameLanguages, lobbyNamesLanguages, langList } = input;
 
   const i18nTextFolderPath = `${folder}/i18n/texts/`;
   // delete all files
@@ -159,20 +157,13 @@ reloadLanguageData("${lang}", phrases);`;
 
 function createColorMusicJsonFiles(input) {
   const { colorList, music } = input;
-  const content = {
-    bottomAreaTextColor: colorList.bottomAreaTextColor,
-    bottomAreaNumberColor: colorList.bottomAreaNumberColor,
-    bottomAreaButtonBorderColor: colorList.bottomAreaButtonBorderColor,
-    bottomAreaWinAmountColor: colorList.bottomAreaWinAmountColor,
-    previewOddsBorderColor: colorList.previewOddsBorderColor,
-    previewOddsSymbolNumberColor: colorList.previewOddsSymbolNumberColor,
-    previewOddsWinValueColor: colorList.previewOddsWinValueColor,
-    noticeTextColor: colorList.noticeTextColor,
-    noticeHighlightTextColor: colorList.noticeHighlightTextColor,
-    bonusCountItemTextColor: colorList.bonusCountItemTextColor,
-  };
+  const colorListKeys = Object.keys(colorList);
+  const colorListContent = {};
+  colorListKeys.forEach((key) => {
+    colorListContent[key] = colorList[key];
+  });
 
-  createJsonFile("color", content);
+  createJsonFile("color", colorListContent);
   createJsonFile("music", { SC1: music });
 }
 
@@ -206,9 +197,7 @@ function replaceAssets(input) {
 
   replaceBundleId(folder, gameId);
   renameSceneFile(preloadFolder, gameName);
-  folders.forEach((f) =>
-    replaceInfoSceneAndPrefab(f, input, oldUUIDMap, newUUIDMap)
-  );
+  folders.forEach((f) => replaceInfoSceneAndPrefab(f, input, oldUUIDMap, newUUIDMap));
   replaceUUIDInAnimation(preloadFolder, oldUUIDMap, newUUIDMap);
   replaceUUIDInParticle(preloadFolder, oldUUIDMap, newUUIDMap);
 }
@@ -221,7 +210,8 @@ function replaceBundleId(folder, gameId) {
 }
 
 function renameSceneFile(folder, gameName) {
-  const sceneName = gameName.replace(" ", "");
+  const sceneName = gameName.replace(/\s+/g, "");
+  console.log("sceneName", sceneName);
   const filePaths = glob.sync(`${folder}/**/*@(.fire)`);
   filePaths.forEach((filePath) => {
     const newName = path.dirname(filePath) + `/${sceneName}.fire`;
@@ -292,7 +282,7 @@ function replaceInfoSceneAndPrefab(folder, input, currentMap, newMap) {
     "sp.Skeleton": ["_N$skeletonData"],
     "cc.ParticleSystem": ["_file"],
     "cc.Label": ["_N$file"],
-		e07eb7ZtCFH5IdBzWDXvE12: ["atlas"],
+    e07eb7ZtCFH5IdBzWDXvE12: ["atlas"],
   };
 
   filePaths.forEach((path) => {
@@ -309,10 +299,10 @@ function replaceInfoSceneAndPrefab(folder, input, currentMap, newMap) {
             if (!temp) {
               return;
             }
-						// console.log("before ", data[subKey]);
+            // console.log("before ", data[subKey]);
             replaceUUID(temp, "__uuid__", currentMap, newMap);
-						data[subKey] = temp;
-						// console.log("after ", data[subKey]);
+            data[subKey] = temp;
+            // console.log("after ", data[subKey]);
           });
         }
 
@@ -344,7 +334,7 @@ function getUUIDMap(dirPath, keyByUUID = true) {
   const filePaths = glob.sync(`${dirPath}/**/*.meta`);
   filePaths.forEach((filePath) => {
     const data = fse.readJSONSync(filePath);
-		const { subMetas, importer, uuid, type } = data;
+    const { subMetas, importer, uuid, type } = data;
 
     Object.keys(subMetas).forEach((key) => {
       const subData = subMetas[key];
@@ -364,8 +354,8 @@ function getUUIDMap(dirPath, keyByUUID = true) {
       importer === "json" ||
       importer === "spine" ||
       importer === "particle" ||
-			importer === "bitmap-font" ||
-			type === "Texture Packer"
+      importer === "bitmap-font" ||
+      type === "Texture Packer"
     ) {
       if (keyByUUID) {
         uuidMap[uuid] = filename;
